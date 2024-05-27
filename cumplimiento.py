@@ -11,7 +11,7 @@ def cargar_datos():
 
 def procesar_datos(tiendas_df, entrega_mayo_df):
     # Unir los DataFrames por la columna 'id tienda'
-    merged_df = pd.merge(entrega_mayo_df, tiendas_df, left_on='id tienda', right_on='id tienda')
+    merged_df = pd.merge(entrega_mayo_df, tiendas_df, left_on='tienda_id', right_on='tienda_id')
 
     # Crear la columna 'nombre de la tienda' concatenando 'zona' y 'tienda'
     merged_df['nombre de la tienda'] = merged_df['zona'] + ' - ' + merged_df['tienda']
