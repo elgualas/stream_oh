@@ -1,9 +1,9 @@
 # cumplimiento.py
 import pandas as pd
 
-def cargar_datos_entregas(file_entregas, file_tiendas):
-    entrega_mayo = pd.read_csv(file_entregas)
-    tiendas = pd.read_csv(file_tiendas)
+def cargar_datos_entregas():
+    entrega_mayo = pd.read_csv('entrega_mayo.csv')  # Cambia esto por la ruta correcta de tu archivo
+    tiendas = pd.read_csv('tiendas.csv')  # Cambia esto por la ruta correcta de tu archivo
     return entrega_mayo, tiendas
 
 def crear_resumen_entregas(entrega_mayo, tiendas):

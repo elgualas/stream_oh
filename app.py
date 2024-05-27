@@ -72,9 +72,7 @@ if option == "Intensidad":
 elif option == "Recurrencia":
     display_recurrence_summary(st, go, sin_camp_recurrence, camp_recurrence, garantia_recurrence, total_recurrence)
 elif option == "Cumplimiento":
-    entrega_file_path = 'entrega_mayo.csv'  # Cambia esto por la ruta correcta de tu archivo
-    tiendas_file_path = 'tiendas.csv'  # Cambia esto por la ruta correcta de tu archivo
-    entrega_mayo, tiendas = cargar_datos_entregas(entrega_file_path, tiendas_file_path)
+    entrega_mayo, tiendas = cargar_datos_entregas()
     cumplimiento_summary = crear_resumen_entregas(entrega_mayo, tiendas)
     display_cumplimiento_summary(st, cumplimiento_summary)
 elif option == "Otros":
