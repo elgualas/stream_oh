@@ -123,7 +123,7 @@ def display_recurrence_summary(st, go, sin_camp_recurrence, camp_recurrence, gar
         filtered_summary = selected_summary[selected_columns]
 
         if value_type == "Porcentaje":
-            filtered_summary[selected_months] = filtered_summary[selected_months].apply(lambda x: x / x.sum() * 100, axis=1)
+            filtered_summary[selected_months] = filtered_summary[selected_months].apply(lambda x: x / x.sum() * 100 if x.sum() != 0 else 0, axis=1)
             filtered_summary[selected_months] = filtered_summary[selected_months].applymap(lambda x: f"{x:.2f}%")
         else:
             filtered_summary['Total'] = filtered_summary[selected_months].sum(axis=1)
