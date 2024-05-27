@@ -1,34 +1,18 @@
+# cumplimiento.py
 import pandas as pd
-import streamlit as st
 
-def cargar_datos():
-    tiendas_path = 'tiendas.csv'  # Cambia esto por la ruta correcta de tu archivo
-    entrega_mayo_path = 'entrega_mayo.csv'  # Cambia esto por la ruta correcta de tu archivo
+def cargar_datos_entregas(file_entregas, file_tiendas):
+    entrega_mayo = pd.read_csv(file_entregas)
+    tiendas = pd.read_csv(file_tiendas)
+    return entrega_mayo, tiendas
 
-    tiendas_df = pd.read_csv(tiendas_path)
-    entrega_mayo_df = pd.read_csv(entrega_mayo_path)
-    return tiendas_df, entrega_mayo_df
+def crear_resumen_entregas(entrega_mayo, tiendas):
+    tiendas['Tienda'] = tiendas['zona'] + ' ' + tiendas['tienda']
+    merged_df = entrega_mayo.merge(tiendas, left_on='tienda_id', right_on='IdTienda')
+    delivery_summary_final = merged_df.groupby(['tipo', 'Tienda'])['IdEntrega'].count().reset_index()
+    delivery_summary_final.columns = ['TipoTienda', 'Tienda', 'TotalEntregas']
+    return delivery_summary_final
 
-def procesar_datos(tiendas_df, entrega_mayo_df):
-    # Unir los DataFrames por la columna 'id tienda'
-    merged_df = pd.merge(entrega_mayo_df, tiendas_df, left_on='tienda_id', right_on='tienda_id')
-
-    # Crear la columna 'nombre de la tienda' concatenando 'zona' y 'tienda'
-    merged_df['nombre de la tienda'] = merged_df['zona'] + ' - ' + merged_df['tienda']
-
-    # Agrupar por 'tipo de tienda' y 'nombre de la tienda' para contar las entregas
-    resumen_df = merged_df.groupby(['tipo de tienda', 'nombre de la tienda']).size().reset_index(name='entregas')
-
-    return resumen_df
-
-def mostrar_resumen(resumen_df):
-    st.title('Resumen de Cumplimiento de Entregas')
-    st.dataframe(resumen_df)
-
-def main():
-    tiendas_df, entrega_mayo_df = cargar_datos()
-    resumen_df = procesar_datos(tiendas_df, entrega_mayo_df)
-    mostrar_resumen(resumen_df)
-
-if __name__ == '__main__':
-    main()
+def display_cumplimiento_summary(st, summary_df):
+    st.write("### Resumen de Entregas por Tienda")
+    st.dataframe(summary_df)

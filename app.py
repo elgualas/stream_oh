@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from recurrencia import cargar_datos, filtrar_datos, process_group, display_recurrence_summary
 from intensidad import create_summary, display_summary
-from cumplimiento import main as mostrar_cumplimiento
+from cumplimiento import cargar_datos_entregas, crear_resumen_entregas, display_cumplimiento_summary
 
 st.set_page_config(
     page_title="Ex-stream-ly Cool App",
@@ -72,6 +72,10 @@ if option == "Intensidad":
 elif option == "Recurrencia":
     display_recurrence_summary(st, go, sin_camp_recurrence, camp_recurrence, garantia_recurrence, total_recurrence)
 elif option == "Cumplimiento":
-    mostrar_cumplimiento()
+    entrega_file_path = 'entrega_mayo.csv'  # Cambia esto por la ruta correcta de tu archivo
+    tiendas_file_path = 'tiendas.csv'  # Cambia esto por la ruta correcta de tu archivo
+    entrega_mayo, tiendas = cargar_datos_entregas(entrega_file_path, tiendas_file_path)
+    cumplimiento_summary = crear_resumen_entregas(entrega_mayo, tiendas)
+    display_cumplimiento_summary(st, cumplimiento_summary)
 elif option == "Otros":
     st.write("Contenido para Opción 3")
