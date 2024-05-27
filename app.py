@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from recurrencia import cargar_datos, filtrar_datos, process_group, display_recurrence_summary
 from intensidad import create_summary, display_summary
+from cumplimiento import main as mostrar_cumplimiento
 
 st.set_page_config(
     page_title="Ex-stream-ly Cool App",
@@ -62,7 +63,7 @@ st.sidebar.markdown(
 st.sidebar.markdown('<div class="sidebar-title">Proyecto</div>', unsafe_allow_html=True)
 st.sidebar.markdown('<div class="menu-box">', unsafe_allow_html=True)
 st.sidebar.image("oh!.png", use_column_width=True)  # Añade tu imagen
-option = st.sidebar.selectbox("Selecciona una opción:", ["Intensidad", "Recurrencia", "Otros"])
+option = st.sidebar.selectbox("Selecciona una opción:", ["Intensidad", "Recurrencia", "Cumplimiento", "Otros"])
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # Mostrar contenido basado en la opción seleccionada
@@ -70,5 +71,7 @@ if option == "Intensidad":
     display_summary(st, go, sin_camp_summary, camp_summary, garantia_summary, total_summary)
 elif option == "Recurrencia":
     display_recurrence_summary(st, go, sin_camp_recurrence, camp_recurrence, garantia_recurrence, total_recurrence)
+elif option == "Cumplimiento":
+    mostrar_cumplimiento()
 elif option == "Otros":
     st.write("Contenido para Opción 3")
