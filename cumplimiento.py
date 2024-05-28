@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Diccionarios basados en las imágenes proporcionadas
 OH = {
@@ -40,10 +40,10 @@ feriados = 0
 
 def calcular_dias_del_mes():
     now = datetime.now()
+    dia_actual = (now - timedelta(days=1)).day  # Restar un día para obtener el día anterior
     dias_del_mes = pd.Period(now.strftime('%Y-%m')).days_in_month
-    dia_actual = now.day
     dias_laborables = dias_del_mes - feriados
-    return dia_actual, dias_laborables
+    return dia_actual, dias_laborables, dias_del_mes
 
 def cargar_datos_entregas():
     entrega_mayo = pd.read_csv('entrega_mayo.csv')  # Cambia esto por la ruta correcta de tu archivo
@@ -62,7 +62,7 @@ def calcular_estacional(df, dia_actual):
     return df[['tienda', 'Estacional']]
 
 def agregar_cumplimiento(df):
-    dia_actual, dias_laborables = calcular_dias_del_mes()
+    dia_actual, dias_laborables, _ = calcular_dias_del_mes()
     porcentaje_esperado = (dia_actual / dias_laborables) * 100
 
     def calcular_cumplimiento(row):
@@ -136,9 +136,23 @@ def display_cumplimiento_summary(st):
             ["general", "cluster_a", "tradicional"],
             key="tipo_tienda_radio"
         )
+        # Añadir el recuadro con el resumen de días y porcentaje justo debajo de los filtros
+        dia_actual, dias_laborables, dias_del_mes = calcular_dias_del_mes()
+        dias_transcurridos = dia_actual  # Ya está ajustado para el día anterior
+        porcentaje_transcurrido = (dias_transcurridos / dias_del_mes) * 100
+
+        # Crear el recuadro compacto con HTML
+        st.write(f"""
+            <div style="border:1px solid #ddd; padding: 10px; display: inline-block;">
+                <table>
+                    <tr><th>Día</th><th>%</th></tr>
+                    <tr><td>{dias_del_mes}</td><td>100%</td></tr>
+                    <tr><td>{dias_transcurridos}</td><td>{porcentaje_transcurrido:.0f}%</td></tr>
+                </table>
+            </div>
+        """, unsafe_allow_html=True)
 
     with col2:
-        dia_actual, _ = calcular_dias_del_mes()
         entrega_mayo, tiendas = cargar_datos_entregas()
         estacional_oh, estacional_oto = cargar_datos_estacionales()
         estacional = estacional_oh if meta_option == "OH" else estacional_oto
@@ -155,4 +169,5 @@ def display_cumplimiento_summary(st):
             cumplimiento_summary.to_html(escape=False, index=False),
             unsafe_allow_html=True
         )
+
 
