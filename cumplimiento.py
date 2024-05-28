@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import plotly.express as px
 from datetime import datetime, timedelta
 
 # Diccionarios basados en las imágenes proporcionadas
@@ -169,5 +170,32 @@ def display_cumplimiento_summary(st):
             cumplimiento_summary.to_html(escape=False, index=False),
             unsafe_allow_html=True
         )
+
+    # Filtro para seleccionar una tienda específica o tipo de tienda
+    st.header("Línea de Entregas")
+    col3, col4 = st.columns([1, 3])
+    with col3:
+        tiendas['Tienda'] = tiendas['zona'] + ' ' + tiendas['tienda']  # Concatenar zona y tienda
+        tipo_filtro = st.radio("Selecciona el tipo de filtro:", ["Tienda", "Tipo de Tienda"])
+        if tipo_filtro == "Tienda":
+            tienda_seleccionada = st.radio("Selecciona la tienda:", tiendas['Tienda'].unique())
+            datos_filtrados = entrega_mayo[entrega_mayo['tienda_id'].isin(tiendas[tiendas['Tienda'] == tienda_seleccionada]['IdTienda'])]
+        else:
+            tipo_tienda_seleccionado = st.radio("Selecciona el tipo de tienda:", tiendas['tipo'].unique())
+            datos_filtrados = entrega_mayo[entrega_mayo['tienda_id'].isin(tiendas[tiendas['tipo'] == tipo_tienda_seleccionado]['IdTienda'])]
+
+    with col4:
+        # Convertir la columna fecha_entrega a datetime
+        datos_filtrados['fecha_entrega'] = pd.to_datetime(datos_filtrados['fecha_entrega'])
+        
+        # Crear una nueva columna para la fecha sin la hora
+        datos_filtrados['fecha'] = datos_filtrados['fecha_entrega'].dt.date
+        
+        # Agrupar por fecha y contar las entregas
+        entregas_por_dia = datos_filtrados.groupby('fecha').size().reset_index(name='entregas')
+        
+        # Crear la gráfica de línea de tiempo
+        fig = px.line(entregas_por_dia, x='fecha', y='entregas', title='Entregas por Día')
+        st.plotly_chart(fig)
 
 
