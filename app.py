@@ -64,7 +64,6 @@ st.sidebar.markdown('<div class="sidebar-title">Proyecto</div>', unsafe_allow_ht
 st.sidebar.markdown('<div class="menu-box">', unsafe_allow_html=True)
 st.sidebar.image("oh!.png", use_column_width=True)  # Añade tu imagen
 option = st.sidebar.selectbox("Selecciona una opción:", ["Intensidad", "Recurrencia", "Cumplimiento", "Otros"])
-meta_option = st.sidebar.selectbox("Selecciona una meta:", ["OH", "OTO"]) if option == "Cumplimiento" else None
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # Mostrar contenido basado en la opción seleccionada
@@ -73,6 +72,6 @@ if option == "Intensidad":
 elif option == "Recurrencia":
     display_recurrence_summary(st, go, sin_camp_recurrence, camp_recurrence, garantia_recurrence, total_recurrence)
 elif option == "Cumplimiento":
-    display_cumplimiento_summary(st, meta_option)
+    display_cumplimiento_summary(st)
 elif option == "Otros":
     st.write("Contenido para Opción 3")
