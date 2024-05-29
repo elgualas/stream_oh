@@ -2,95 +2,42 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 
+@st.cache_data
 def cargar_datos(file_path):
-    df = pd.read_csv(file_path)
-    return df
+    return pd.read_csv(file_path)
 
+@st.cache_data
 def filtrar_datos(df):
     sin_camp_df = df[df['estado'] == 'sin camp.']
     camp_df = df[df['estado'] == 'camp.']
     garantia_df = df[df['estado'] == 'garantia']
     return sin_camp_df, camp_df, garantia_df
 
+@st.cache_data
 def process_group(df):
-    result = pd.DataFrame(columns=['Mes', 'Rec. Enero', 'Rec. Febrero', 'Rec. Marzo', 'Rec. Abril', 'Rec. Mayo'])
-
-    suma_enero = df['Ene (Mes 0)'].sum()
-    suma_febrero = df['Feb (Mes 1)'].sum()
-    suma_marzo = df['Mar (Mes 2)'].sum()
-    suma_abril = df['Abr (Mes 3)'].sum()
-    suma_mayo = df['May (Mes 4)'].sum()
-
-    dnis_enero = set(df[df['Ene (Mes 0)'] > 0]['DNI Cliente'])
-    dnis_febrero = set(df[df['Feb (Mes 1)'] > 0]['DNI Cliente'])
-    dnis_marzo = set(df[df['Mar (Mes 2)'] > 0]['DNI Cliente'])
-    dnis_abril = set(df[df['Abr (Mes 3)'] > 0]['DNI Cliente'])
-    dnis_mayo = set(df[df['May (Mes 4)'] > 0]['DNI Cliente'])
-
-    suma_enero_febrero = len(dnis_enero & dnis_febrero)
-    suma_febrero_nuevos = suma_febrero - suma_enero_febrero
-
-    suma_enero_marzo = len(dnis_enero & dnis_marzo)
-    suma_febrero_marzo = len(dnis_febrero & dnis_marzo)
-    suma_marzo_nuevos = suma_marzo - (suma_enero_marzo + suma_febrero_marzo)
-
-    suma_enero_abril = len(dnis_enero & dnis_abril)
-    suma_febrero_abril = len(dnis_febrero & dnis_abril)
-    suma_marzo_abril = len(dnis_marzo & dnis_abril)
-    suma_abril_nuevos = suma_abril - (suma_enero_abril + suma_febrero_abril + suma_marzo_abril)
-
-    suma_enero_mayo = len(dnis_enero & dnis_mayo)
-    suma_febrero_mayo = len(dnis_febrero & dnis_mayo)
-    suma_marzo_mayo = len(dnis_marzo & dnis_mayo)
-    suma_abril_mayo = len(dnis_abril & dnis_mayo)
-    suma_mayo_nuevos = suma_mayo - (suma_enero_mayo + suma_febrero_mayo + suma_marzo_mayo + suma_abril_mayo)
-
-    result = pd.concat([result, pd.DataFrame([{
-        'Mes': 'Enero',
-        'Rec. Enero': suma_enero,
-        'Rec. Febrero': 0,
-        'Rec. Marzo': 0,
-        'Rec. Abril': 0,
-        'Rec. Mayo': 0
-    }])], ignore_index=True)
-
-    result = pd.concat([result, pd.DataFrame([{
-        'Mes': 'Febrero',
-        'Rec. Enero': suma_enero_febrero,
-        'Rec. Febrero': suma_febrero_nuevos,
-        'Rec. Marzo': 0,
-        'Rec. Abril': 0,
-        'Rec. Mayo': 0
-    }])], ignore_index=True)
-
-    result = pd.concat([result, pd.DataFrame([{
-        'Mes': 'Marzo',
-        'Rec. Enero': suma_enero_marzo,
-        'Rec. Febrero': suma_febrero_marzo,
-        'Rec. Marzo': suma_marzo_nuevos,
-        'Rec. Abril': 0,
-        'Rec. Mayo': 0
-    }])], ignore_index=True)
-
-    result = pd.concat([result, pd.DataFrame([{
-        'Mes': 'Abril',
-        'Rec. Enero': suma_enero_abril,
-        'Rec. Febrero': suma_febrero_abril,
-        'Rec. Marzo': suma_marzo_abril,
-        'Rec. Abril': suma_abril_nuevos,
-        'Rec. Mayo': 0
-    }])], ignore_index=True)
-
-    result = pd.concat([result, pd.DataFrame([{
-        'Mes': 'Mayo',
-        'Rec. Enero': suma_enero_mayo,
-        'Rec. Febrero': suma_febrero_mayo,
-        'Rec. Marzo': suma_marzo_mayo,
-        'Rec. Abril': suma_abril_mayo,
-        'Rec. Mayo': suma_mayo_nuevos
-    }])], ignore_index=True)
-
-    result['Total'] = result[['Rec. Enero', 'Rec. Febrero', 'Rec. Marzo', 'Rec. Abril', 'Rec. Mayo']].sum(axis=1)
+    # Obtener las columnas de los meses dinámicamente
+    month_columns = [col for col in df.columns if '(Mes ' in col]
+    result = pd.DataFrame(columns=['Mes'] + [f'Rec. {col.split()[0]}' for col in month_columns])
+    
+    all_dnis = {col: set(df[df[col] > 0]['DNI Cliente']) for col in month_columns}
+    total_sums = {col: df[col].sum() for col in month_columns}
+    
+    for i, month in enumerate(month_columns):
+        row = {'Mes': month.split()[0]}
+        current_dnis = all_dnis[month]
+        
+        for j in range(i):
+            prev_month = month_columns[j]
+            row[f'Rec. {prev_month.split()[0]}'] = len(current_dnis & all_dnis[prev_month])
+        
+        row[f'Rec. {month.split()[0]}'] = total_sums[month] - sum(row.get(f'Rec. {col.split()[0]}', 0) for col in month_columns[:i])
+        
+        for j in range(i + 1, len(month_columns)):
+            row[f'Rec. {month_columns[j].split()[0]}'] = 0
+        
+        result = pd.concat([result, pd.DataFrame([row])], ignore_index=True)
+    
+    result['Total'] = result.iloc[:, 1:].sum(axis=1)
     return result
 
 def display_recurrence_summary(st, go):
@@ -124,7 +71,7 @@ def display_recurrence_summary(st, go):
         elif selection == "Total":
             selected_summary = total_recurrence
             
-        months = ['Rec. Enero', 'Rec. Febrero', 'Rec. Marzo', 'Rec. Abril', 'Rec. Mayo']
+        months = [col for col in selected_summary.columns if col not in ['Mes', 'Total']]
         selected_months = st.multiselect("Selecciona los meses:", months, default=months)
 
         # Ordenar los meses seleccionados

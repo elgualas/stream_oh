@@ -160,7 +160,7 @@ def display_cumplimiento_summary(st):
         meta_dict = OH if meta_option == "OH" else OTO
         cumplimiento_summary = crear_resumen_entregas(entrega_mayo, tiendas, meta_dict, tipo_tienda, estacional, dia_actual)
 
-        st.header("Resumen de Entregas por Tienda")
+        st.header("Resumen de Entregas por Tienda Mayo")
         
         # Convertir la columna Cumplimiento a HTML
         cumplimiento_summary['Cumplimiento'] = cumplimiento_summary['Cumplimiento'].apply(lambda x: f'<div style="text-align: right;">{x}</div>')
@@ -196,6 +196,10 @@ def display_cumplimiento_summary(st):
         
         # Crear la gráfica de línea de tiempo
         fig = px.line(entregas_por_dia, x='fecha', y='entregas', title='Entregas por Día')
+        fig.update_xaxes(
+            dtick="D1",  # Ajustar para mostrar cada día
+            tickformat="%b %d"
+        )
         st.plotly_chart(fig)
 
 
