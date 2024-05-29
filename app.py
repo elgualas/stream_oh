@@ -1,8 +1,7 @@
 import streamlit as st
-import pandas as pd
 import plotly.graph_objects as go
-from recurrencia import cargar_datos, filtrar_datos, process_group, display_recurrence_summary
-from intensidad import create_summary, display_summary
+from recurrencia import display_recurrence_summary
+from intensidad import display_summary
 from cumplimiento import display_cumplimiento_summary
 
 st.set_page_config(
@@ -16,26 +15,6 @@ st.set_page_config(
         'About': "# This is a header. This is an *extremely* cool app!"
     }
 )
-
-# Cargar el archivo CSV
-file_path = 'recurrencia.csv'  # Cambia esto por la ruta correcta de tu archivo
-df = cargar_datos(file_path)
-
-# Filtrar los datos por los valores de la columna 'estado'
-sin_camp_df, camp_df, garantia_df = filtrar_datos(df)
-
-# Crear resúmenes de intensidad
-sin_camp_summary = create_summary(sin_camp_df)
-camp_summary = create_summary(camp_df)
-garantia_summary = create_summary(garantia_df)
-total_df = pd.concat([sin_camp_df, camp_df, garantia_df])
-total_summary = create_summary(total_df)
-
-# Crear los resúmenes de recurrencia
-sin_camp_recurrence = process_group(sin_camp_df)
-camp_recurrence = process_group(camp_df)
-garantia_recurrence = process_group(garantia_df)
-total_recurrence = process_group(total_df)
 
 st.sidebar.markdown(
     """
@@ -68,9 +47,9 @@ st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # Mostrar contenido basado en la opción seleccionada
 if option == "Intensidad":
-    display_summary(st, go, sin_camp_summary, camp_summary, garantia_summary, total_summary)
+    display_summary(st, go)
 elif option == "Recurrencia":
-    display_recurrence_summary(st, go, sin_camp_recurrence, camp_recurrence, garantia_recurrence, total_recurrence)
+    display_recurrence_summary(st, go)
 elif option == "Cumplimiento":
     display_cumplimiento_summary(st)
 elif option == "Otros":

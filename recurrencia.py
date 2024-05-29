@@ -1,4 +1,6 @@
 import pandas as pd
+import streamlit as st
+import plotly.graph_objects as go
 
 def cargar_datos(file_path):
     df = pd.read_csv(file_path)
@@ -91,8 +93,17 @@ def process_group(df):
     result['Total'] = result[['Rec. Enero', 'Rec. Febrero', 'Rec. Marzo', 'Rec. Abril', 'Rec. Mayo']].sum(axis=1)
     return result
 
-def display_recurrence_summary(st, go, sin_camp_recurrence, camp_recurrence, garantia_recurrence, total_recurrence):
+def display_recurrence_summary(st, go):
     st.header("Resumen de Recurrencia")
+    file_path = 'recurrencia.csv'  # Cambia esto por la ruta correcta de tu archivo
+    df = cargar_datos(file_path)
+    sin_camp_df, camp_df, garantia_df = filtrar_datos(df)
+    sin_camp_recurrence = process_group(sin_camp_df)
+    camp_recurrence = process_group(camp_df)
+    garantia_recurrence = process_group(garantia_df)
+    total_df = pd.concat([sin_camp_df, camp_df, garantia_df])
+    total_recurrence = process_group(total_df)
+
     col1, col2 = st.columns([1, 2])
     with col1:
         selection = st.radio(

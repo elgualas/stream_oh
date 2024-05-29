@@ -1,4 +1,15 @@
 import pandas as pd
+import streamlit as st
+import plotly.graph_objects as go
+
+def cargar_datos(file_path):
+    return pd.read_csv(file_path)
+
+def filtrar_datos(df):
+    sin_camp_df = df[df['estado'] == 'sin camp.']
+    camp_df = df[df['estado'] == 'camp.']
+    garantia_df = df[df['estado'] == 'garantia']
+    return sin_camp_df, camp_df, garantia_df
 
 def create_summary(df):
     summary = df.groupby('Rango de Repeticiones').agg({
@@ -25,8 +36,17 @@ def create_summary(df):
     
     return summary
 
-def display_summary(st, go, sin_camp_summary, camp_summary, garantia_summary, total_summary):
+def display_summary(st, go):
     st.header("Resumen de Intensidad")
+    file_path = 'recurrencia.csv'  # Cambia esto por la ruta correcta de tu archivo
+    df = cargar_datos(file_path)
+    sin_camp_df, camp_df, garantia_df = filtrar_datos(df)
+    sin_camp_summary = create_summary(sin_camp_df)
+    camp_summary = create_summary(camp_df)
+    garantia_summary = create_summary(garantia_df)
+    total_df = pd.concat([sin_camp_df, camp_df, garantia_df])
+    total_summary = create_summary(total_df)
+
     col1, col2 = st.columns([1, 2])
     with col1:
         selection = st.radio(
