@@ -42,11 +42,11 @@ option = st.sidebar.selectbox("Selecciona una opción:", ["Intensidad", "Recurre
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # Mostrar contenido basado en la opción seleccionada
-if option == "Intensidad":
+if option == "Cumplimiento":
+    display_cumplimiento_summary(st)
+elif option == "Intensidad":
     display_summary(st, go)
 elif option == "Recurrencia":
     display_recurrence_summary(st, go)
-elif option == "Cumplimiento":
-    display_cumplimiento_summary(st)
 elif option == "Otros":
     st.write("Contenido para Opción 3")
