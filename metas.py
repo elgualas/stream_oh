@@ -89,35 +89,31 @@ def display_metas_summary():
     st.title("Resumen de Metas")
     
     OH = {
-        "vea caminos del inca": 140,
-        "vea cortijo": 130,
-        "vea dasso": 0,
-        "vea la molina": 115,
-        "vea miraflores": 190,
-        "vea valle hermoso": 145,
-        "oechsle primavera": 90,
-        "oechsle san borja": 105,
-        "vea higuereta": 155,
-        "vea jockey": 105,
-        "vea primavera": 50,
-        "vea san borja": 175,
-        "vea sucre": 105
+        "vea caminos del inca": 150,
+        "vea cortijo": 140,
+        "vea la molina": 125,
+        "vea miraflores": 200,
+        "vea valle hermoso": 155,
+        "oechsle primavera": 110,
+        "oechsle san borja": 125,
+        "vea higuereta": 175,
+        "vea jockey": 125,
+        "vea primavera": 70,
+        "vea san borja": 195
     }
 
     OTO = {
-        "vea caminos del inca": 200,
-        "vea cortijo": 160,
-        "vea dasso": 100,
-        "vea la molina": 160,
-        "vea miraflores": 250,
-        "vea valle hermoso": 130,
-        "oechsle primavera": 90,
-        "oechsle san borja": 140,
-        "vea higuereta": 170,
-        "vea jockey": 130,
-        "vea primavera": 50,
-        "vea san borja": 165,
-        "vea sucre": 115
+        "vea caminos del inca": 194,
+        "vea cortijo": 166,
+        "vea la molina": 168,
+        "vea miraflores": 230,
+        "vea valle hermoso": 151,
+        "oechsle primavera": 94,
+        "oechsle san borja": 190,
+        "vea higuereta": 180,
+        "vea jockey": 165,
+        "vea primavera": 85,
+        "vea san borja": 160
     }
     
     metas_diarias_OH = distribuir_metas(OH, 6, 2024, feriados)
