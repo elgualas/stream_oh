@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import date, datetime
+from datetime import date, timedelta, datetime
 
 # Define los pesos
 peso_dia_semana = 1.3
@@ -85,25 +85,32 @@ def convertir_a_dataframe(metas_diarias):
     df['Total'] = df.sum(axis=1)
     return df
 
-def ajustar_metas_diarias(ventas_reales, metas_diarias, hoy):
-    for tienda in metas_diarias:
-        if tienda not in ventas_reales:
-            continue
-        
-        ventas_acumuladas = sum(ventas_reales[tienda].get(dia, 0) for dia in metas_diarias[tienda] if dia < hoy)
-        meta_restante = metas_diarias[tienda][hoy] + sum(metas_diarias[tienda][dia] for dia in metas_diarias[tienda] if dia > hoy)
-        
-        ajuste_necesario = metas_diarias[tienda][hoy] - ventas_acumuladas
-        
-        if ajuste_necesario > 0:
-            for dia in sorted(metas_diarias[tienda]):
-                if dia > hoy:
-                    metas_diarias[tienda][dia] += ajuste_necesario // (len(metas_diarias[tienda]) - metas_diarias[tienda].keys().index(dia))
+def ajustar_metas(df_metas, df_entregas, df_tiendas):
+    hoy = datetime.now().date()
+    hoy_str = hoy.strftime('%Y-%m-%d')
     
-    return metas_diarias
+    # Aseguramos que la fecha de hoy esté en el formato esperado
+    if hoy_str not in df_metas.columns:
+        st.error(f"No hay datos de metas para la fecha de hoy: {hoy_str}")
+        return df_metas
+    
+    # Ajustamos las metas para cada tienda en función de las entregas actuales
+    for tienda in df_tiendas['Tienda']:
+        if tienda in df_metas.index:
+            entregas_tienda = df_entregas[df_entregas['Tienda'] == tienda]['Entregas'].sum()
+            meta_total = df_metas.at[tienda, 'Total']
+            entregas_acumuladas = df_entregas[df_entregas['Tienda'] == tienda].sum(axis=1).values[0]
+            meta_hoy = (meta_total - entregas_acumuladas) / (30 - hoy.day + 1)
+            df_metas.at[tienda, hoy_str] = max(0, int(meta_hoy))
+    
+    return df_metas
 
 def display_metas_summary():
     st.title("Resumen de Metas")
+    
+    # Leer archivos CSV
+    df_entregas = pd.read_csv('/mnt/data/entrega_junio.csv')
+    df_tiendas = pd.read_csv('/mnt/data/tiendas.csv')
     
     OH = {
         "vea caminos del inca": 150,
@@ -133,36 +140,21 @@ def display_metas_summary():
         "vea san borja": 160
     }
     
-    # Cargar archivos CSV
-    entregas = pd.read_csv('/mnt/data/entrega_junio.csv')
-    tiendas = pd.read_csv('/mnt/data/tiendas.csv')
-    
-    # Convertir entregas a diccionario
-    entregas['fecha'] = pd.to_datetime(entregas['fecha'])
-    ventas_reales = entregas.pivot_table(index='tienda', columns='fecha', values='entregas', aggfunc='sum').fillna(0).to_dict('index')
-    
-    # Obtener la fecha de hoy
-    hoy = date.today()
-    
     metas_diarias_OH = distribuir_metas(OH, 6, 2024, feriados)
     metas_diarias_OTO = distribuir_metas(OTO, 6, 2024, feriados)
     
-    # Ajustar metas diarias
-    metas_diarias_OH_ajustadas = ajustar_metas_diarias(ventas_reales, metas_diarias_OH, hoy)
-    metas_diarias_OTO_ajustadas = ajustar_metas_diarias(ventas_reales, metas_diarias_OTO, hoy)
+    df_OH = convertir_a_dataframe(metas_diarias_OH)
+    df_OTO = convertir_a_dataframe(metas_diarias_OTO)
     
-    df_OH = convertir_a_dataframe(metas_diarias_OH_ajustadas)
-    df_OTO = convertir_a_dataframe(metas_diarias_OTO_ajustadas)
+    # Ajustar las metas diarias en función de las entregas actuales
+    df_OH_ajustado = ajustar_metas(df_OH, df_entregas, df_tiendas)
+    df_OTO_ajustado = ajustar_metas(df_OTO, df_entregas, df_tiendas)
     
-    st.subheader("Metas OH")
-    st.table(df_OH)
+    st.subheader("Metas OH Ajustadas")
+    st.table(df_OH_ajustado)
     
-    st.subheader("Metas OTO")
-    st.table(df_OTO)
-
-    st.subheader("Meta del Día de Hoy")
-    meta_hoy = {tienda: metas_diarias_OH_ajustadas[tienda][hoy] + metas_diarias_OTO_ajustadas[tienda][hoy] for tienda in metas_diarias_OH_ajustadas}
-    df_meta_hoy = pd.DataFrame.from_dict(meta_hoy, orient='index', columns=['Meta Hoy'])
-    st.table(df_meta_hoy)
+    st.subheader("Metas OTO Ajustadas")
+    st.table(df_OTO_ajustado)
 
 # Llama a la función display_metas_summary en tu aplicación principal
+
