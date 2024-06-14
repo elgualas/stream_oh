@@ -111,8 +111,8 @@ def display_metas_summary():
     st.title("Resumen de Metas")
     
     # Leer archivos CSV
-    entregas_path = '/mnt/data/entrega_junio.csv'
-    tiendas_path = '/mnt/data/tiendas.csv'
+    entregas_path = 'entrega_junio.csv'
+    tiendas_path = 'tiendas.csv'
     
     if not os.path.exists(entregas_path) or not os.path.exists(tiendas_path):
         st.error("No se encontraron los archivos CSV requeridos.")
