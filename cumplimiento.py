@@ -47,9 +47,9 @@ def calcular_dias_del_mes():
     return dia_actual, dias_laborables, dias_del_mes
 
 def cargar_datos_entregas():
-    entrega_mayo = pd.read_csv('entrega_mayo.csv')  # Cambia esto por la ruta correcta de tu archivo
+    entrega_junio = pd.read_csv('entrega_junio.csv')  # Cambia esto por la ruta correcta de tu archivo
     tiendas = pd.read_csv('tiendas.csv')  # Cambia esto por la ruta correcta de tu archivo
-    return entrega_mayo, tiendas
+    return entrega_junio, tiendas
 
 def cargar_datos_estacionales():
     estacional_oh = pd.read_csv('estacional_oh.csv')  # Cambia esto por la ruta correcta de tu archivo
@@ -93,9 +93,9 @@ def agregar_avance_estacional(df):
     df['Avance Est.'] = df.apply(calcular_avance, axis=1)
     return df
 
-def crear_resumen_entregas(entrega_mayo, tiendas, meta_dict, tipo_tienda, estacional, dia_actual):
+def crear_resumen_entregas(entrega_junio, tiendas, meta_dict, tipo_tienda, estacional, dia_actual):
     tiendas['Tienda'] = tiendas['zona'] + ' ' + tiendas['tienda']
-    merged_df = entrega_mayo.merge(tiendas, left_on='tienda_id', right_on='IdTienda')
+    merged_df = entrega_junio.merge(tiendas, left_on='tienda_id', right_on='IdTienda')
     if tipo_tienda != 'general':
         merged_df = merged_df[merged_df['tipo'] == tipo_tienda]
     delivery_summary_final = merged_df.groupby(['tipo', 'Tienda'])['IdEntrega'].count().reset_index()
@@ -154,13 +154,13 @@ def display_cumplimiento_summary(st):
         """, unsafe_allow_html=True)
 
     with col2:
-        entrega_mayo, tiendas = cargar_datos_entregas()
+        entrega_junio, tiendas = cargar_datos_entregas()
         estacional_oh, estacional_oto = cargar_datos_estacionales()
         estacional = estacional_oh if meta_option == "OH" else estacional_oto
         meta_dict = OH if meta_option == "OH" else OTO
-        cumplimiento_summary = crear_resumen_entregas(entrega_mayo, tiendas, meta_dict, tipo_tienda, estacional, dia_actual)
+        cumplimiento_summary = crear_resumen_entregas(entrega_junio, tiendas, meta_dict, tipo_tienda, estacional, dia_actual)
 
-        st.header("Resumen de Entregas por Tienda Mayo")
+        st.header("Resumen de Entregas por Tienda Junio")
         
         # Convertir la columna Cumplimiento a HTML
         cumplimiento_summary['Cumplimiento'] = cumplimiento_summary['Cumplimiento'].apply(lambda x: f'<div style="text-align: right;">{x}</div>')
@@ -179,10 +179,10 @@ def display_cumplimiento_summary(st):
         tipo_filtro = st.radio("Selecciona el tipo de filtro:", ["Tienda", "Tipo de Tienda"])
         if tipo_filtro == "Tienda":
             tienda_seleccionada = st.radio("Selecciona la tienda:", tiendas['Tienda'].unique())
-            datos_filtrados = entrega_mayo[entrega_mayo['tienda_id'].isin(tiendas[tiendas['Tienda'] == tienda_seleccionada]['IdTienda'])]
+            datos_filtrados = entrega_junio[entrega_junio['tienda_id'].isin(tiendas[tiendas['Tienda'] == tienda_seleccionada]['IdTienda'])]
         else:
             tipo_tienda_seleccionado = st.radio("Selecciona el tipo de tienda:", tiendas['tipo'].unique())
-            datos_filtrados = entrega_mayo[entrega_mayo['tienda_id'].isin(tiendas[tiendas['tipo'] == tipo_tienda_seleccionado]['IdTienda'])]
+            datos_filtrados = entrega_junio[entrega_junio['tienda_id'].isin(tiendas[tiendas['tipo'] == tipo_tienda_seleccionado]['IdTienda'])]
 
     with col4:
         # Convertir la columna fecha_entrega a datetime
