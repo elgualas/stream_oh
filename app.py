@@ -38,7 +38,7 @@ st.sidebar.markdown(
 st.sidebar.markdown('<div class="sidebar-title">Proyecto</div>', unsafe_allow_html=True)
 st.sidebar.markdown('<div class="menu-box">', unsafe_allow_html=True)
 st.sidebar.image("oh!.png", use_column_width=True)  # Añade tu imagen
-option = st.sidebar.selectbox("Selecciona una opción:", ["Intensidad", "Recurrencia", "Cumplimiento", "Otros"])
+option = st.sidebar.selectbox("Selecciona una opción:", ["Cumplimiento", "Intensidad", "Recurrencia",  "Otros"])
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # Mostrar contenido basado en la opción seleccionada
