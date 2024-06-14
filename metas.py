@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import date, timedelta, datetime
 
 # Define los pesos
-peso_dia_semana = 0.8
+peso_dia_semana = 0.9
 peso_fin_de_semana = 1.5
 
 # Define los días festivos
