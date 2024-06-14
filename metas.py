@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from datetime import date, timedelta, datetime
 
 # Define los pesos
@@ -53,6 +54,12 @@ def distribuir_metas(metas, mes, año, feriados):
     
     return metas_diarias
 
+def convertir_a_dataframe(metas_diarias):
+    df = pd.DataFrame(metas_diarias).T
+    df.columns = [fecha.strftime('%Y-%m-%d') for fecha in df.columns]
+    df.index.name = 'Tienda'
+    return df
+
 def display_metas_summary():
     st.title("Resumen de Metas")
     
@@ -91,16 +98,13 @@ def display_metas_summary():
     metas_diarias_OH = distribuir_metas(OH, 6, 2024, feriados)
     metas_diarias_OTO = distribuir_metas(OTO, 6, 2024, feriados)
     
+    df_OH = convertir_a_dataframe(metas_diarias_OH)
+    df_OTO = convertir_a_dataframe(metas_diarias_OTO)
+    
     st.subheader("Metas OH")
-    for tienda, metas in metas_diarias_OH.items():
-        st.markdown(f"### {tienda}")
-        for dia, meta in metas.items():
-            st.write(f"{dia}: {meta:.2f}")
+    st.table(df_OH)
     
     st.subheader("Metas OTO")
-    for tienda, metas in metas_diarias_OTO.items():
-        st.markdown(f"### {tienda}")
-        for dia, meta in metas.items():
-            st.write(f"{dia}: {meta:.2f}")
+    st.table(df_OTO)
 
 # Llama a la función display_metas_summary en tu aplicación principal
