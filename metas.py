@@ -7,7 +7,7 @@ peso_dia_semana = 0.9
 peso_fin_de_semana = 1.5
 
 # Define los días festivos
-feriados = ['2024-06-14', '2024-06-27']
+feriados = []
 
 # Diccionario para los días de la semana
 dias_semana = {0: 'lun', 1: 'mar', 2: 'mié', 3: 'jue', 4: 'vie', 5: 'sáb', 6: 'dom'}
