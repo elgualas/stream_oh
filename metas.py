@@ -9,6 +9,9 @@ peso_fin_de_semana = 1.5
 # Define los días festivos
 feriados = ['2024-06-14', '2024-06-27']
 
+# Diccionario para los días de la semana
+dias_semana = {0: 'lun', 1: 'mar', 2: 'mié', 3: 'jue', 4: 'vie', 5: 'sáb', 6: 'dom'}
+
 def calcular_total_pesos(mes, año, feriados):
     total_pesos = 0
     dias_mes = []
@@ -47,16 +50,16 @@ def distribuir_metas(metas, mes, año, feriados):
             if dia.strftime('%Y-%m-%d') in feriados:
                 continue
             if dia.weekday() >= 5:
-                meta_diaria[dia] = (meta / total_pesos) * peso_fin_de_semana
+                meta_diaria[dia] = round((meta / total_pesos) * peso_fin_de_semana)
             else:
-                meta_diaria[dia] = (meta / total_pesos) * peso_dia_semana
+                meta_diaria[dia] = round((meta / total_pesos) * peso_dia_semana)
         metas_diarias[tienda] = meta_diaria
     
     return metas_diarias
 
 def convertir_a_dataframe(metas_diarias):
     df = pd.DataFrame(metas_diarias).T
-    df.columns = [fecha.strftime('%Y-%m-%d') for fecha in df.columns]
+    df.columns = [f"{fecha.day}-{dias_semana[fecha.weekday()]}" for fecha in df.columns]
     df.index.name = 'Tienda'
     return df
 
