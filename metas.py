@@ -62,16 +62,17 @@ def distribuir_metas(metas, mes, año, feriados):
         deficit = meta - total_meta_diaria
         
         # Reparte el déficit entre viernes, sábados y domingos
-        for dia in dias_mes:
-            if deficit == 0:
-                break
-            if dia.strftime('%Y-%m-%d') in feriados:
-                continue
-            if dia.weekday() in [4, 5, 6]:  # 4 es viernes, 5 es sábado, 6 es domingo
-                meta_diaria[dia] += 1
-                deficit -= 1
+        while deficit > 0:
+            for dia in dias_mes:
                 if deficit == 0:
                     break
+                if dia.strftime('%Y-%m-%d') in feriados:
+                    continue
+                if dia.weekday() in [4, 5, 6]:  # 4 es viernes, 5 es sábado, 6 es domingo
+                    meta_diaria[dia] += 1
+                    deficit -= 1
+                    if deficit == 0:
+                        break
         
         metas_diarias[tienda] = meta_diaria
     
