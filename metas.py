@@ -61,6 +61,7 @@ def convertir_a_dataframe(metas_diarias):
     df = pd.DataFrame(metas_diarias).T
     df.columns = [f"{fecha.day}-{dias_semana[fecha.weekday()]}" for fecha in df.columns]
     df.index.name = 'Tienda'
+    df['Total'] = df.sum(axis=1)
     return df
 
 def display_metas_summary():
