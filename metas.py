@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import date, timedelta, datetime
+import os
 
 # Define los pesos
 peso_dia_semana = 1.3
@@ -12,6 +13,7 @@ feriados = []
 # Diccionario para los días de la semana
 dias_semana = {0: 'lun', 1: 'mar', 2: 'mié', 3: 'jue', 4: 'vie', 5: 'sáb', 6: 'dom'}
 
+# Funciones auxiliares
 def calcular_total_pesos(mes, año, feriados):
     total_pesos = 0
     dias_mes = []
@@ -109,8 +111,15 @@ def display_metas_summary():
     st.title("Resumen de Metas")
     
     # Leer archivos CSV
-    df_entregas = pd.read_csv('/mnt/data/entrega_junio.csv')
-    df_tiendas = pd.read_csv('/mnt/data/tiendas.csv')
+    entregas_path = '/mnt/data/entrega_junio.csv'
+    tiendas_path = '/mnt/data/tiendas.csv'
+    
+    if not os.path.exists(entregas_path) or not os.path.exists(tiendas_path):
+        st.error("No se encontraron los archivos CSV requeridos.")
+        return
+    
+    df_entregas = pd.read_csv(entregas_path)
+    df_tiendas = pd.read_csv(tiendas_path)
     
     OH = {
         "vea caminos del inca": 150,
@@ -157,4 +166,3 @@ def display_metas_summary():
     st.table(df_OTO_ajustado)
 
 # Llama a la función display_metas_summary en tu aplicación principal
-
