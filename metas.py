@@ -10,7 +10,15 @@ feriados = ['2024-06-14', '2024-06-27']
 
 def calcular_total_pesos(mes, año, feriados):
     total_pesos = 0
-    dias_mes = [date(año, mes, dia) for dia in range(1, 32) if date(año, mes, dia).month == mes]
+    dias_mes = []
+    for dia in range(1, 32):
+        try:
+            current_date = date(año, mes, dia)
+            if current_date.month == mes:
+                dias_mes.append(current_date)
+        except ValueError:
+            break
+
     for dia in dias_mes:
         if dia.strftime('%Y-%m-%d') in feriados:
             continue
@@ -23,7 +31,14 @@ def calcular_total_pesos(mes, año, feriados):
 def distribuir_metas(metas, mes, año, feriados):
     total_pesos = calcular_total_pesos(mes, año, feriados)
     metas_diarias = {}
-    dias_mes = [date(año, mes, dia) for dia in range(1, 32) if date(año, mes, dia).month == mes]
+    dias_mes = []
+    for dia in range(1, 32):
+        try:
+            current_date = date(año, mes, dia)
+            if current_date.month == mes:
+                dias_mes.append(current_date)
+        except ValueError:
+            break
     
     for tienda, meta in metas.items():
         meta_diaria = {}
